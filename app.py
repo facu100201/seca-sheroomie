@@ -5,6 +5,7 @@ El motor se carga desde MotorInferenciaSBC_SR_v.1.ipynb (ver motor_notebook.py).
 """
 import json
 import os
+from html import escape
 import sqlite3
 from pathlib import Path
 
@@ -45,6 +46,12 @@ st.markdown("""
   .seca-veredicto .t {font-size:2rem; font-weight:700; line-height:1.15;}
   .seca-evento {border-left:3px solid #B83A6B; padding:.1rem 0 .7rem .9rem; margin-left:.3rem;}
   .seca-evento small {color:#6B7280;}
+  .seca-tabla-wrap {overflow-x:auto; border:1px solid #E3DFD6; border-radius:10px; margin-bottom:.4rem;}
+  .seca-tabla {width:100%; border-collapse:collapse; font-size:.88rem;}
+  .seca-tabla th {text-align:left; font-weight:600; color:#5B6272; background:#F2EFE8; padding:.45rem .7rem; border-bottom:1px solid #E3DFD6; white-space:nowrap;}
+  .seca-tabla td {padding:.45rem .7rem; border-bottom:1px solid #ECE8DF; vertical-align:top;}
+  .seca-tabla tr:last-child td {border-bottom:none;}
+  .seca-tabla td.ancha {overflow-wrap:anywhere; min-width:16rem; width:55%;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -120,6 +127,18 @@ tab_perfil, tab_lectura, tab_razon, tab_veredicto = st.tabs(
 def tarjeta(titulo, datos):
     filas = "".join(f'<div class="seca-dato"><span>{k}</span><b>{v}</b></div>' for k, v in datos.items())
     st.markdown(f'<div class="seca-card"><h4>{titulo}</h4>{filas}</div>', unsafe_allow_html=True)
+
+
+def tabla_ajustada(filas, ancha):
+    # Los valores salen de la base de datos: se escapan antes de meterlos en HTML.
+    columnas = list(filas[0])
+    cabecera = "".join(f"<th>{escape(c)}</th>" for c in columnas)
+    clase = {c: ' class="ancha"' if c == ancha else "" for c in columnas}
+    cuerpo = "".join(
+        "<tr>" + "".join(f"<td{clase[c]}>{escape(str(f[c]))}</td>" for c in columnas) + "</tr>"
+        for f in filas)
+    st.markdown(f'<div class="seca-tabla-wrap"><table class="seca-tabla"><thead><tr>{cabecera}</tr></thead>'
+                f"<tbody>{cuerpo}</tbody></table></div>", unsafe_allow_html=True)
 
 
 def sn(v):
@@ -206,9 +225,8 @@ with tab_razon:
                       "origen": r["origen"], "validación": r["estado"]} for r in reglas]
             orden = {"✓": 0, "?": 1, "✗": 2}
             filas.sort(key=lambda f: orden[f["resultado"][0]])
-            st.dataframe(pd.DataFrame(filas), hide_index=True, width="stretch",
-                         column_config={"regla con los valores de la candidata":
-                                        st.column_config.TextColumn(width="large")})
+            # tabla HTML y no st.dataframe: st.dataframe corta el texto largo de la regla en una sola línea
+            tabla_ajustada(filas, ancha="regla con los valores de la candidata")
     st.markdown("**Ciclos del motor** (conjunto conflicto y regla elegida en cada vuelta)")
     st.dataframe(M.tabla_ciclos(res), hide_index=True, width="stretch")
     st.markdown("**Cómo se publicó cada conclusión**")
