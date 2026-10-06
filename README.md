@@ -5,7 +5,10 @@ Interfaz web (Streamlit) para que la experta de SheRoomie revise cada solicitud:
 1. **Perfil y expediente**: cómo se fue armando el perfil de la candidata (onboarding, verificación, expediente de solvencia) y las reglas de la casa.
 2. **Lectura de variables**: de qué tabla y campo sale cada variable del motor, qué valor tiene en la base, qué valor recibe el motor y si hay algo que revisar (⚠ por revisar, ? desconocida, ✗ inválida, ⊘ excluida por no discriminación).
 3. **Cómo decidió el motor**: cada nivel con todas sus reglas (✓ se cumplió, ✗ no se cumplió, ? faltan datos) y los valores reales de la candidata, los ciclos del motor y cómo se publicó cada conclusión.
-4. **Veredicto y revisión**: dictamen, condición, acciones, el árbol del porqué y el registro en JSON. La experta indica si está de acuerdo y, si no, el dictamen que daría y el motivo; queda guardado en la tabla `seca_revisiones`.
+4. **Diagnóstico del caso**: la metodología del laboratorio de casos (Sesión 7). Clasifica el caso como normal, encadenado, conflictivo o ambiguo (puede ser varios a la vez); muestra cada conflicto con la política que lo resolvió, las cadenas de reglas hasta el dictamen, los datos faltantes y las reglas que los leen, y si las reglas que decidieron están validadas. Liga cada conflicto o dato faltante con las excepciones del Excel y su pregunta para la experta. Descarga la evidencia del caso en Markdown con los 7 puntos de la actividad.
+5. **Veredicto y revisión**: dictamen, condición, acciones, el árbol del porqué y el registro en JSON (incluye el diagnóstico y la predicción). La experta indica si está de acuerdo y, si no, el dictamen que daría y el motivo; queda guardado en la tabla `seca_revisiones`.
+
+**Predecir antes de ver el dictamen** (barra lateral): oculta el dictamen y las pestañas 3 a 5 hasta que escribes qué dictamen, qué patrón y qué reglas esperas. Después la pestaña 4 compara lo esperado con lo observado. La predicción vive en la sesión del navegador y se guarda en el registro JSON de la revisión.
 
 ## Cómo se conecta con el notebook
 
@@ -62,6 +65,7 @@ Solo cambia `adaptador.py`: la tabla `MAPEO` dice de qué tabla y campo sale cad
 | Archivo | Qué hace |
 |---|---|
 | `app.py` | La interfaz |
+| `diagnostico.py` | Diagnóstico del caso (patrones, cadenas, conflictos, ambigüedad, excepciones) a partir de la traza del motor, sin tocarlo |
 | `motor_notebook.py` | Carga el motor ejecutando el notebook |
 | `adaptador.py` | Traduce la base de datos a hechos del motor (`MAPEO`) y guarda las revisiones |
 | `datos_demo.py` | Crea la base de ejemplo |
