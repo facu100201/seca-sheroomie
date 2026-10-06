@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+# La app crea la base de ejemplo al arrancar; las revisiones guardadas en local no se suben.
+*.db
+.streamlit/secrets.toml
