@@ -54,6 +54,10 @@ st.markdown("""
   .seca-tabla td {padding:.45rem .7rem; border-bottom:1px solid #ECE8DF; vertical-align:top;}
   .seca-tabla tr:last-child td {border-bottom:none;}
   .seca-tabla td.ancha {overflow-wrap:anywhere; min-width:16rem; width:55%;}
+  .seca-dictamen {margin-bottom:1rem;}
+  .seca-dictamen-etiqueta {font-size:.875rem; color:#1E2433; margin-bottom:.35rem;}
+  .seca-dictamen-valor {display:inline-block; color:#FBFAF7; font-size:1.45rem; font-weight:600; line-height:1.25; border-radius:10px; padding:.35rem .9rem;}
+  .seca-dictamen-valor.oculto {color:#5B6272; background:transparent; border:1px dashed #C9C3B6; font-size:1.2rem;}
   .seca-chip {display:inline-block; border-radius:999px; padding:.2rem .75rem; margin:0 .4rem .4rem 0; font-size:.85rem; font-weight:600; border:1px solid;}
   .seca-chip.si {background:#B83A6B; color:#FBFAF7; border-color:#B83A6B;}
   .seca-chip.no {color:#9AA0AC; border-color:#E3DFD6; background:transparent;}
@@ -141,7 +145,12 @@ st.header(u["full_name"])
 c1, c2, c3, c4 = st.columns([2.2, 1, 1, 1])
 leidas = sum(l["estado"].startswith(("✓", "⚠")) for l in lecturas if not l["estado"].startswith("⊘"))
 total = sum(not l["estado"].startswith("⊘") for l in lecturas)
-c1.metric("Dictamen del motor", "Oculto hasta tu predicción" if oculto else nombre)
+# Mismo color que el recuadro "Veredicto de SECA"; en modo predicción queda neutro para no dar pistas.
+estilo = "seca-dictamen-valor oculto" if oculto else "seca-dictamen-valor"
+fondo = "" if oculto else f' style="background:{color}"'
+c1.markdown(f'<div class="seca-dictamen"><div class="seca-dictamen-etiqueta">Dictamen del motor</div>'
+            f'<span class="{estilo}"{fondo}>{"Oculto hasta tu predicción" if oculto else nombre}</span></div>',
+            unsafe_allow_html=True)
 c2.metric("Variables leídas", f"{leidas} / {total}")
 c3.metric("Reglas disparadas", f"{len(res['disparadas'])} / {len(M.REGLAS)}")
 c4.metric("Ciclos del motor", len(res["traza"]["ciclos"]))
